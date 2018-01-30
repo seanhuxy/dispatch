@@ -35,12 +35,6 @@ var ImageManagerFlags = struct {
 	ResyncPeriod int    `long:"resync-period" description:"The time period (in seconds) to sync with image repository" default:"10"`
 }{}
 
-var filterNotDeleted = []entitystore.FilterStat{
-	entitystore.FilterStat{
-		Subject: "Delete", Verb: entitystore.FilterVerbEqual, Object: false,
-	},
-}
-
 var statusMap = map[models.Status]entitystore.Status{
 	models.StatusCREATING:    StatusCREATING,
 	models.StatusDELETED:     StatusDELETED,
@@ -229,7 +223,7 @@ func (h *Handlers) getBaseImageByName(params baseimage.GetBaseImageByNameParams,
 func (h *Handlers) getBaseImages(params baseimage.GetBaseImagesParams, principal interface{}) middleware.Responder {
 	defer trace.Trace("getBaseImages")()
 	var images []*BaseImage
-	err := h.Store.List(ImageManagerFlags.OrgID, filterNotDeleted, &images)
+	err := h.Store.List(ImageManagerFlags.OrgID, entitystore.FilterExists(), &images)
 	if err != nil {
 		log.Errorf("store error when listing base images: %+v", err)
 		return baseimage.NewGetBaseImagesDefault(http.StatusInternalServerError).WithPayload(
@@ -332,7 +326,7 @@ func (h *Handlers) getImageByName(params image.GetImageByNameParams, principal i
 func (h *Handlers) getImages(params image.GetImagesParams, principal interface{}) middleware.Responder {
 	defer trace.Trace("getImages")()
 	var images []*Image
-	err := h.Store.List(ImageManagerFlags.OrgID, filterNotDeleted, &images)
+	err := h.Store.List(ImageManagerFlags.OrgID, entitystore.FilterExists(), &images)
 	if err != nil {
 		log.Errorf("store error when listing images: %+v", err)
 		return image.NewGetImagesDefault(http.StatusInternalServerError).WithPayload(

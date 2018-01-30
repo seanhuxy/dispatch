@@ -122,21 +122,36 @@ func doFilterStat(fs FilterStat, entity Entity) (bool, error) {
 
 	rv := reflect.ValueOf(entity).Elem()
 
-	field := rv.FieldByName(fs.Subject)
-	if !field.IsValid() {
-		return false, errors.Errorf("error filtering: invalid field %s", fs.Subject)
+	var subjectValue interface{}
+	switch fs.Scope {
+	case FilterScopeField, FilterScopeExtra:
+		field := rv.FieldByName(fs.Subject)
+		if !field.IsValid() {
+			return false, errors.Errorf("error filtering: invalid field %s", fs.Subject)
+		}
+		subjectValue = field.Interface()
+	case FilterScopeTag:
+		tagField := rv.FieldByName("Tags")
+		if !tagField.IsValid() {
+			return false, errors.Errorf("unexpected error: Tags field not found in entity %t", entity)
+		}
+		tags, ok := tagField.Interface().(Tags)
+		if !ok {
+			return false, errors.Errorf("unexpected error: should be the an instance of type Tags")
+		}
+		subjectValue := tags[fs.Subject]
 	}
 
 	switch fs.Verb {
 	case FilterVerbEqual:
-		return reflect.DeepEqual(field.Interface(), fs.Object), nil
+		return reflect.DeepEqual(subjectValue, fs.Object), nil
 	case FilterVerbIn:
 		objects := reflect.ValueOf(fs.Object)
 		if objects.Kind() != reflect.Slice {
 			return false, errors.Errorf("error filtering: object of a 'in' operator must be a slice")
 		}
 		for i := 0; i < objects.Len(); i++ {
-			if reflect.DeepEqual(field.Interface(), objects.Index(i).Interface()) {
+			if reflect.DeepEqual(subjectValue, objects.Index(i).Interface()) {
 				return true, nil
 			}
 		}
@@ -147,7 +162,7 @@ func doFilterStat(fs FilterStat, entity Entity) (bool, error) {
 		if !ok {
 			return false, errors.Errorf("error filtering: object of a 'before' or 'after' verb must be an instance of time.Time")
 		}
-		subject, ok := field.Interface().(time.Time)
+		subject, ok := subjectValue.(time.Time)
 		if !ok {
 			return false, errors.Errorf("error filtering: subject of a 'before' or 'after' verb must be an instance of time.Time")
 		}

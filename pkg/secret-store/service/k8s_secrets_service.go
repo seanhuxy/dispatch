@@ -21,11 +21,13 @@ type K8sSecretsService struct {
 }
 
 func (secretsService *K8sSecretsService) GetSecret(name string) (*models.Secret, error) {
-	nameFilter := []entitystore.FilterStat{
+	nameFilter := entitystore.FilterEverything().Add(
 		entitystore.FilterStat{
-			Subject: "Name", Verb: entitystore.FilterVerbEqual, Object: name,
-		},
-	}
+			Scope:   entitystore.FilterScopeField,
+			Subject: "Name",
+			Verb:    entitystore.FilterVerbEqual,
+			Object:  name,
+		})
 
 	listOptions := metav1.ListOptions{}
 

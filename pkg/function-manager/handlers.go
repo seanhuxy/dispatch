@@ -436,13 +436,13 @@ func (h *Handlers) getRuns(params fnrunner.GetRunsParams, principal interface{})
 
 func (h *Handlers) getFunctionRuns(params fnrunner.GetFunctionRunsParams, principal interface{}) middleware.Responder {
 	defer trace.Trace("RunnerGetRunsHandler")()
-	filter := []entitystore.FilterStat{
+	filter := entitystore.FilterEverything().Add(
 		entitystore.FilterStat{
+			Scope:   entitystore.FilterScopeExtra,
 			Subject: "FunctionName",
 			Verb:    entitystore.FilterVerbEqual,
 			Object:  params.FunctionName,
-		},
-	}
+		})
 	var runs []*functions.FnRun
 	if err := h.Store.List(FunctionManagerFlags.OrgID, filter, &runs); err != nil {
 		log.Errorf("Store error when listing runs for function %s: %+v", params.FunctionName, err)

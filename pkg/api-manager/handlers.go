@@ -185,10 +185,13 @@ func (h *Handlers) getAPIs(params endpoint.GetApisParams, principal interface{})
 
 	var filterNotDeleted = []entitystore.FilterStat{
 		entitystore.FilterStat{
-			Subject: "Delete", Verb: entitystore.FilterVerbEqual, Object: false,
+			Scope:   entitystore.FilterScopeField,
+			Subject: "Delete",
+			Verb:    entitystore.FilterVerbEqual,
+			Object:  false,
 		},
 	}
-	err := h.Store.List(APIManagerFlags.OrgID, filterNotDeleted, &apis)
+	err := h.Store.List(APIManagerFlags.OrgID, entitystore.FilterExists(), &apis)
 	if err != nil {
 		log.Errorf("store error when listing apis: %+v", err)
 		return endpoint.NewGetApisDefault(http.StatusInternalServerError).WithPayload(

@@ -232,35 +232,6 @@ func (e *BaseEntity) GetTags() Tags {
 	return e.Tags
 }
 
-// Filter defines a set of criteria to filter entities when listing
-type Filter []FilterStat
-
-// FilterStat (Filter Statement) defines one filter criterion
-type FilterStat struct {
-	Subject string
-	Verb    FilterVerb
-	Object  interface{}
-}
-
-// FilterVerb describe the filter verb
-type FilterVerb string
-
-const (
-	// FilterVerbIn tests containment
-	FilterVerbIn FilterVerb = "in"
-
-	// FilterVerbEqual tests equality
-	FilterVerbEqual FilterVerb = "equal"
-
-	// FilterVerbBefore tests two time.Time
-	FilterVerbBefore FilterVerb = "before"
-
-	// FilterVerbAfter tests two time.Time
-	FilterVerbAfter FilterVerb = "after"
-)
-
-// type Filter func(Entity) bool
-
 // EntityStore is a wrapper around libkv and provides convenience methods to
 // serializing and deserializing objects
 type EntityStore interface {

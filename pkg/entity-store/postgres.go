@@ -308,22 +308,28 @@ func makeListQuery(organizationID string, filter Filter, entityType reflect.Type
 		for _, fs := range filter {
 			column := ""
 			object := ""
-			// note: use the Field of **BaseEntity** here,
-			// to differentiate normal columns and json keys in the Value column
-			field, ok := reflect.TypeOf(BaseEntity{}).FieldByName(fs.Subject)
-			if ok {
+			switch fs.Scope {
+			case FilterScopeField:
 				field, ok := reflect.TypeOf(dbEntity{}).FieldByName(fs.Subject)
 				if !ok {
-					err = errors.Errorf("error listing: no such filter subject: %s", fs.Subject)
+					err = errors.Errorf("error listing: no such field: %s", fs.Subject)
 					return
 				}
 				// find the column name by struct tag
 				column = field.Tag.Get("db")
 				object = column
-			} else {
-				field, ok = entityType.FieldByName(fs.Subject)
+			case FilterScopeTag:
+				// tagField, ok := entityType.FieldByName("Tags")
+				// if !ok {
+				// 	err = errors.Errorf("error listing: no such field: Tags")
+				// 	return
+				// }
+				object = fmt.Sprintf("tag-%s", fs.Subject)
+				column = fmt.Sprintf("tags->>'%s'", fs.Subject)
+			case FilterScopeExtra:
+				field, ok := entityType.FieldByName(fs.Subject)
 				if !ok {
-					err = errors.Errorf("error listing: no such filter subject: %s", fs.Subject)
+					err = errors.Errorf("error listing: no such extra field: %s", fs.Subject)
 					return
 				}
 				// remove the "omitempty"
@@ -332,6 +338,7 @@ func makeListQuery(organizationID string, filter Filter, entityType reflect.Type
 				column = fmt.Sprintf("value->>'%s'", object)
 			}
 			args[object] = fs.Object
+
 			switch fs.Verb {
 			case FilterVerbEqual:
 				where = append(where, fmt.Sprintf("%s = :%s", column, object))

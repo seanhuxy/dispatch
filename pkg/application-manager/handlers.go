@@ -162,12 +162,7 @@ func (h *Handlers) getApps(params application.GetAppsParams, principal interface
 	defer trace.Trace("")()
 	var apps []*Application
 
-	var filterNotDeleted = []entitystore.FilterStat{
-		entitystore.FilterStat{
-			Subject: "Delete", Verb: entitystore.FilterVerbEqual, Object: false,
-		},
-	}
-	err := h.store.List(ApplicationManagerFlags.OrgID, filterNotDeleted, &apps)
+	err := h.store.List(ApplicationManagerFlags.OrgID, entitystore.FilterExists(), &apps)
 	if err != nil {
 		log.Errorf("store error when listing applications: %+v", err)
 		return application.NewGetAppsDefault(http.StatusInternalServerError).WithPayload(
