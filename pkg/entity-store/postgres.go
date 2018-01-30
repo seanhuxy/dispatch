@@ -305,7 +305,7 @@ func makeListQuery(organizationID string, filter Filter, entityType reflect.Type
 		"type = :type",
 	}
 	if filter != nil {
-		for _, fs := range filter {
+		for _, fs := range filter.FilterStats() {
 			column := ""
 			object := ""
 			switch fs.Scope {
@@ -319,12 +319,7 @@ func makeListQuery(organizationID string, filter Filter, entityType reflect.Type
 				column = field.Tag.Get("db")
 				object = column
 			case FilterScopeTag:
-				// tagField, ok := entityType.FieldByName("Tags")
-				// if !ok {
-				// 	err = errors.Errorf("error listing: no such field: Tags")
-				// 	return
-				// }
-				object = fmt.Sprintf("tag-%s", fs.Subject)
+				object = fmt.Sprintf("tag_%s", fs.Subject)
 				column = fmt.Sprintf("tags->>'%s'", fs.Subject)
 			case FilterScopeExtra:
 				field, ok := entityType.FieldByName(fs.Subject)

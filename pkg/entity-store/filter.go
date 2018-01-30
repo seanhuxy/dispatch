@@ -1,7 +1,5 @@
 package entitystore
 
-import entitystore "github.com/vmware/dispatch/pkg/entity-store"
-
 const (
 	// FilterVerbIn tests containment
 	FilterVerbIn Verb = "in"
@@ -51,16 +49,16 @@ type filter struct {
 
 // FilterEverything creates a filter, which will matches all entities
 func FilterEverything() Filter {
-	return filter{}
+	return &filter{}
 }
 
 // FilterExists creates a filter, which will filter entities with Delete=true
 func FilterExists() Filter {
-	f := filter{}
+	f := &filter{}
 	f.Add(FilterStat{
-		Scope:   entitystore.FilterScopeField,
+		Scope:   FilterScopeField,
 		Subject: "Delete",
-		Verb:    entitystore.FilterVerbEqual,
+		Verb:    FilterVerbEqual,
 		Object:  false,
 	})
 	return f
@@ -68,23 +66,23 @@ func FilterExists() Filter {
 
 // FilterByApplication creates a filter, which will filter based on the suppied application name
 func FilterByApplication(app string) Filter {
-	f := filter{}
+	f := &filter{}
 	f.Add(FilterStat{
-		Scope:   entitystore.FilterScopeTag,
+		Scope:   FilterScopeTag,
 		Subject: "Application",
-		Verb:    entitystore.FilterVerbEqual,
+		Verb:    FilterVerbEqual,
 		Object:  app,
 	})
 	return f
 }
 
 func (f *filter) Add(stats ...FilterStat) Filter {
-	for _, fs := range stats {
-		f.stats = append(f.stats, stats)
+	for _, stat := range stats {
+		f.statements = append(f.statements, stat)
 	}
-	return *f
+	return f
 }
 
-func (f filter) Filters() []FilterStat {
+func (f filter) FilterStats() []FilterStat {
 	return f.statements
 }

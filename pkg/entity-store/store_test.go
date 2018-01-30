@@ -21,6 +21,7 @@ import (
 
 var (
 	postgresConfig = BackendConfig{
+		Backend:  "postgres",
 		Address:  "192.168.99.100:5432",
 		Username: "testuser",
 		Password: "testpasswd",
@@ -58,6 +59,7 @@ func TestPostgresEntityStore(t *testing.T) {
 	testPut(t, es)
 	testList(t, es)
 	testListWithFilter(t, es)
+	testListWithFilterOnTags(t, es)
 	testDelete(t, es)
 	testInvalidNames(t, es)
 	testMixedTypes(t, es)
@@ -82,6 +84,7 @@ func TestLibkvEntityStore(t *testing.T) {
 	testPut(t, es)
 	testList(t, es)
 	testListWithFilter(t, es)
+	testListWithFilterOnTags(t, es)
 	testDelete(t, es)
 	testInvalidNames(t, es)
 	testMixedTypes(t, es)
@@ -282,13 +285,14 @@ func testList(t *testing.T, es EntityStore) {
 		assert.Equal(t, i.Revision, item.Revision, "Revision does not match")
 	}
 
-	filter := []FilterStat{
+	filter := FilterEverything().Add(
 		FilterStat{
+			Scope:   FilterScopeField,
 			Subject: "Status",
 			Verb:    FilterVerbEqual,
 			Object:  StatusERROR,
-		},
-	}
+		})
+
 	items = []*testEntity{}
 	err = es.List("testOrg", filter, &items)
 	require.NoError(t, err, "Error listing entities")
@@ -302,6 +306,47 @@ func testList(t *testing.T, es EntityStore) {
 	assert.NoError(t, err, "Error clean up")
 }
 
+func testListWithFilterOnTags(t *testing.T, es EntityStore) {
+
+	testFoo := &testEntity{
+		BaseEntity: BaseEntity{
+			OrganizationID: "testOrg",
+			Name:           "testFoo",
+			Status:         StatusREADY,
+			Tags: map[string]string{
+				"Application": "foo",
+			},
+		},
+	}
+	_, err := es.Add(testFoo)
+	assert.NoError(t, err, "Error adding entity")
+
+	testBar := &testEntity{
+		BaseEntity: BaseEntity{
+			OrganizationID: "testOrg",
+			Name:           "testBar",
+			Status:         StatusREADY,
+			Tags: map[string]string{
+				"Application": "bar",
+			},
+		},
+	}
+	_, err = es.Add(testBar)
+	assert.NoError(t, err, "Error adding entity")
+
+	var result []*testEntity
+	filterBar := FilterByApplication("bar")
+	err = es.List("testOrg", filterBar, &result)
+
+	assert.NoError(t, err)
+	assert.Len(t, result, 1)
+	assert.Equal(t, "testBar", result[0].Name)
+
+	// clean up
+	es.Delete("testOrg", testBar.Name, testBar)
+	es.Delete("testOrg", testFoo.Name, testFoo)
+}
+
 func testListWithFilter(t *testing.T, es EntityStore) {
 
 	testTimeBeforeEntity := &testEntity{
@@ -312,7 +357,6 @@ func testListWithFilter(t *testing.T, es EntityStore) {
 		},
 		Value: "testTimeBefore",
 	}
-
 	_, err := es.Add(testTimeBeforeEntity)
 	assert.NoError(t, err, "Error adding entity")
 
@@ -353,34 +397,41 @@ func testListWithFilter(t *testing.T, es EntityStore) {
 	_, err = es.Add(testInEntity)
 	assert.NoError(t, err)
 
-	filterTimeBefore := FilterStat{Subject: "CreatedTime", Verb: FilterVerbBefore, Object: testTime}
-	filterEqualValue := FilterStat{Subject: "Value", Verb: FilterVerbEqual, Object: "testEqualValue"}
-	filterDeleted := FilterStat{Subject: "Delete", Verb: FilterVerbEqual, Object: true}
-	filterIn := FilterStat{Subject: "Status", Verb: FilterVerbIn,
+	filterTimeBefore := FilterStat{
+		Scope:   FilterScopeField,
+		Subject: "CreatedTime",
+		Verb:    FilterVerbBefore,
+		Object:  testTime,
+	}
+	filterEqualValue := FilterStat{Scope: FilterScopeExtra, Subject: "Value", Verb: FilterVerbEqual, Object: "testEqualValue"}
+	filterDeleted := FilterStat{Scope: FilterScopeField, Subject: "Delete", Verb: FilterVerbEqual, Object: true}
+	filterIn := FilterStat{
+		Scope:   FilterScopeField,
+		Subject: "Status", Verb: FilterVerbIn,
 		Object: []Status{StatusCREATING, StatusDELETING, StatusERROR}}
 
 	var result []*testEntity
-	err = es.List("testOrg", []FilterStat{filterTimeBefore}, &result)
+	err = es.List("testOrg", FilterEverything().Add(filterTimeBefore), &result)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, "testTimeBefore", result[0].Name)
 
-	err = es.List("testOrg", []FilterStat{filterEqualValue}, &result)
+	err = es.List("testOrg", FilterEverything().Add(filterEqualValue), &result)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, "testEqualValue", result[0].Name)
 
-	err = es.List("testOrg", []FilterStat{filterIn, filterEqualValue}, &result)
+	err = es.List("testOrg", FilterEverything().Add(filterEqualValue).Add(filterIn), &result)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, "testEqualValue", result[0].Name)
 
-	err = es.List("testOrg", []FilterStat{filterDeleted}, &result)
+	err = es.List("testOrg", FilterEverything().Add(filterDeleted), &result)
 	assert.NoError(t, err)
 	assert.Len(t, result, 1)
 	assert.Equal(t, "testDeleted", result[0].Name)
 
-	err = es.List("testOrg", []FilterStat{filterIn}, &result)
+	err = es.List("testOrg", FilterEverything().Add(filterIn), &result)
 	assert.NoError(t, err)
 	assert.Len(t, result, 2)
 

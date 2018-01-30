@@ -139,7 +139,7 @@ func doFilterStat(fs FilterStat, entity Entity) (bool, error) {
 		if !ok {
 			return false, errors.Errorf("unexpected error: should be the an instance of type Tags")
 		}
-		subjectValue := tags[fs.Subject]
+		subjectValue = tags[fs.Subject]
 	}
 
 	switch fs.Verb {
@@ -176,7 +176,7 @@ func doFilterStat(fs FilterStat, entity Entity) (bool, error) {
 }
 
 func doFilter(filter Filter, entity Entity) (bool, error) {
-	for _, fs := range filter {
+	for _, fs := range filter.FilterStats() {
 		ok, err := doFilterStat(fs, entity)
 		if err != nil {
 			log.Debugf("doFilter: error: %s", err)
