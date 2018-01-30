@@ -57,11 +57,16 @@ type Handlers struct {
 
 func subscriptionModelToEntity(m *models.Subscription) *Subscription {
 	defer trace.Tracef("topic: %s, function: %s", *m.Topic, *m.Subscriber.Name)()
+	tags := make(map[string]string)
+	for _, t := range m.Tags {
+		tags[t.Key] = t.Value
+	}
 	e := Subscription{
 		BaseEntity: entitystore.BaseEntity{
 			OrganizationID: EventManagerFlags.OrgID,
 			Name:           fmt.Sprintf("%s_%s", strings.Replace(*m.Topic, ".", "_", -1), *m.Subscriber.Name),
 			Status:         entitystore.Status(m.Status),
+			Tags:           tags,
 		},
 		Topic: *m.Topic,
 		Subscriber: Subscriber{
@@ -75,6 +80,11 @@ func subscriptionModelToEntity(m *models.Subscription) *Subscription {
 
 func subscriptionEntityToModel(sub *Subscription) *models.Subscription {
 	defer trace.Tracef("topic: %s, function: %s", sub.Topic, sub.Subscriber)()
+
+	var tags []*models.Tag
+	for k, v := range sub.Tags {
+		tags = append(tags, &models.Tag{Key: k, Value: v})
+	}
 	m := models.Subscription{
 		Name:  sub.Name,
 		Topic: swag.String(sub.Topic),
@@ -86,12 +96,17 @@ func subscriptionEntityToModel(sub *Subscription) *models.Subscription {
 		Secrets:      sub.Secrets,
 		CreatedTime:  sub.CreatedTime.Unix(),
 		ModifiedTime: sub.ModifiedTime.Unix(),
+		Tags:         tags,
 	}
 	return &m
 }
 
 func driverModelToEntity(m *models.Driver) *Driver {
 	defer trace.Tracef("type: %s, name: %s", *m.Name, *m.Type)
+	tags := make(map[string]string)
+	for _, t := range m.Tags {
+		tags[t.Key] = t.Value
+	}
 	config := make(map[string]string)
 	for _, c := range m.Config {
 		config[c.Key] = c.Value
@@ -100,6 +115,7 @@ func driverModelToEntity(m *models.Driver) *Driver {
 		BaseEntity: entitystore.BaseEntity{
 			OrganizationID: EventManagerFlags.OrgID,
 			Name:           *m.Name,
+			Tags:           tags,
 		},
 		Type:    *m.Type,
 		Config:  config,
@@ -110,6 +126,10 @@ func driverModelToEntity(m *models.Driver) *Driver {
 func driverEntityToModel(d *Driver) *models.Driver {
 	defer trace.Tracef("type: %s, name: %s", d.Name, d.Type)
 
+	var tags []*models.Tag
+	for k, v := range d.Tags {
+		tags = append(tags, &models.Tag{Key: k, Value: v})
+	}
 	var mconfig []*models.Config
 	for k, v := range d.Config {
 		mconfig = append(mconfig, &models.Config{Key: k, Value: v})
@@ -122,6 +142,7 @@ func driverEntityToModel(d *Driver) *models.Driver {
 		CreatedTime:  d.CreatedTime.Unix(),
 		ModifiedTime: d.ModifiedTime.Unix(),
 		Secrets:      d.Secrets,
+		Tags:         tags,
 	}
 }
 

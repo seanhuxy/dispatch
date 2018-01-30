@@ -52,10 +52,15 @@ func NewHandlers(watcher controller.Watcher, store entitystore.EntityStore) *Han
 
 func apiModelOntoEntity(m *models.API) *API {
 	defer trace.Tracef("name '%s'", *m.Name)()
+	tags := make(map[string]string)
+	for _, t := range m.Tags {
+		tags[t.Key] = t.Value
+	}
 	e := API{
 		BaseEntity: entitystore.BaseEntity{
 			OrganizationID: APIManagerFlags.OrgID,
 			Name:           *m.Name,
+			Tags:           tags,
 		},
 		API: gateway.API{
 			Name:           *m.Name,
@@ -75,6 +80,10 @@ func apiModelOntoEntity(m *models.API) *API {
 
 func apiEntityToModel(e *API) *models.API {
 	defer trace.Tracef("name '%s'", e.Name)()
+	var tags []*models.Tag
+	for k, v := range e.Tags {
+		tags = append(tags, &models.Tag{Key: k, Value: v})
+	}
 	m := models.API{
 		ID:             strfmt.UUID(e.ID),
 		Name:           swag.String(e.Name),
@@ -88,6 +97,7 @@ func apiEntityToModel(e *API) *models.API {
 		Uris:           e.API.URIs,
 		Status:         models.Status(e.Status),
 		Cors:           e.API.CORS,
+		Tags:           tags,
 	}
 	return &m
 }

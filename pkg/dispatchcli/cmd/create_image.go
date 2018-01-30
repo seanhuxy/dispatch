@@ -62,7 +62,12 @@ func createImage(out, errOut io.Writer, cmd *cobra.Command, args []string) error
 	body := &models.Image{
 		Name:          &args[0],
 		BaseImageName: &args[1],
+		Tags:          models.ImageTags{},
 	}
+	if cmdFlagApplication != "" {
+		body.Tags = append(body.Tags, &models.Tag{Key: "Application", Value: cmdFlagApplication})
+	}
+
 	err := CallCreateImage(body)
 	if err != nil {
 		return err

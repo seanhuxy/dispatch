@@ -118,10 +118,14 @@ func createFunction(out, errOut io.Writer, cmd *cobra.Command, args []string) er
 			Image:   &args[0],
 			Name:    &args[1],
 			Secrets: fnSecrets,
+			Tags:    []*models.Tag{},
 		},
 		FunctionPath:  args[2],
 		SchemaInPath:  schemaInFile,
 		SchemaOutPath: schemaOutFile,
+	}
+	if cmdFlagApplication != "" {
+		function.Function.Tags = append(function.Function.Tags, &models.Tag{Key: "Application", Value: cmdFlagApplication})
 	}
 	err := CallCreateFunction(function)
 	if err != nil {

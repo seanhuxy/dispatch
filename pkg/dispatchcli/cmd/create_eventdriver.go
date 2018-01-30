@@ -50,7 +50,6 @@ func NewCmdCreateEventDriver(out io.Writer, errOut io.Writer) *cobra.Command {
 	}
 	cmd.Flags().StringArrayVarP(&createEventDriverConfig, "set", "s", []string{}, "set event driver configurations, default: empty")
 	cmd.Flags().StringArrayVar(&createEventDriverSecrets, "secret", []string{}, "Configuration passed via secrets, can be specified multiple times or a comma-delimited string")
-
 	return cmd
 }
 
@@ -76,6 +75,10 @@ func createEventDriver(out, errOut io.Writer, cmd *cobra.Command, args []string)
 		Type:    swag.String(driverType),
 		Config:  driverConfig,
 		Secrets: createEventDriverSecrets,
+		Tags:    []*models.Tag{},
+	}
+	if cmdFlagApplication != "" {
+		eventDriver.Tags = append(eventDriver.Tags, &models.Tag{Key: "Application", Value: cmdFlagApplication})
 	}
 
 	params := &client.AddDriverParams{

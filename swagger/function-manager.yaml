@@ -413,6 +413,10 @@ definitions:
         type: array
         items:
           type: string
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/Tag'
   Error:
     type: object
     required:

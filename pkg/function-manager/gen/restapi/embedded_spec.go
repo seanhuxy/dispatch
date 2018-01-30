@@ -585,6 +585,9 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/Status"
+        },
+        "tags": {
+          "$ref": "#/definitions/runTags"
         }
       }
     },
@@ -647,6 +650,13 @@ func init() {
         "$ref": "#/definitions/Run"
       },
       "x-go-gen-location": "operations"
+    },
+    "runTags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      },
+      "x-go-gen-location": "models"
     }
   },
   "securityDefinitions": {

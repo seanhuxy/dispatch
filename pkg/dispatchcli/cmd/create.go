@@ -25,8 +25,9 @@ var (
 	createLong = i18n.T(`Create a resource. See subcommands for resources that can be created.`)
 
 	// TODO: Add examples
-	createExample = i18n.T(``)
-	file          = i18n.T(``)
+	createExample      = i18n.T(``)
+	file               = i18n.T(``)
+	cmdFlagApplication = i18n.T(``)
 )
 
 type modelAction func(interface{}) error
@@ -148,6 +149,7 @@ func NewCmdCreate(out io.Writer, errOut io.Writer) *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVarP(&cmdFlagApplication, "application", "a", "", "Application")
 	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to YAML file")
 
 	cmd.AddCommand(NewCmdCreateBaseImage(out, errOut))

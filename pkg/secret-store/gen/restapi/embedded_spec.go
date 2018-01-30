@@ -245,6 +245,9 @@ func init() {
         },
         "secrets": {
           "$ref": "#/definitions/SecretValue"
+        },
+        "tags": {
+          "$ref": "#/definitions/secretTags"
         }
       }
     },
@@ -254,12 +257,30 @@ func init() {
         "type": "string"
       }
     },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
     "getSecretsOKBody": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Secret"
       },
       "x-go-gen-location": "operations"
+    },
+    "secretTags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      },
+      "x-go-gen-location": "models"
     }
   },
   "securityDefinitions": {

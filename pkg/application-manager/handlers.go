@@ -75,10 +75,15 @@ func (h *Handlers) ConfigureHandlers(routableAPI middleware.RoutableAPI) {
 
 func applicationModelOntoEntity(m *models.Application) *Application {
 	defer trace.Tracef("name '%s'", *m.Name)()
+	tags := make(map[string]string)
+	for _, t := range m.Tags {
+		tags[t.Key] = t.Value
+	}
 	e := Application{
 		BaseEntity: entitystore.BaseEntity{
 			OrganizationID: ApplicationManagerFlags.OrgID,
 			Name:           *m.Name,
+			Tags:           tags,
 		},
 	}
 	return &e

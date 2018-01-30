@@ -133,7 +133,10 @@ func runModelToEntity(m *models.Run, f *functions.Function) *functions.FnRun {
 	} else {
 		secrets = append(secrets, m.Secrets...)
 	}
-
+	tags := make(map[string]string)
+	for _, t := range m.Tags {
+		tags[t.Key] = t.Value
+	}
 	var waitChan chan struct{}
 	if m.Blocking {
 		waitChan = make(chan struct{})
@@ -144,19 +147,23 @@ func runModelToEntity(m *models.Run, f *functions.Function) *functions.FnRun {
 			Name:           uuid.NewV4().String(),
 			Status:         f.Status,
 			Reason:         f.Reason,
+			Tags:           tags,
 		},
 		Blocking:     m.Blocking,
 		Input:        m.Input,
 		Secrets:      secrets,
 		FunctionName: f.Name,
 		FunctionID:   f.ID,
-
-		WaitChan: waitChan,
+		WaitChan:     waitChan,
 	}
 }
 
 func runEntityToModel(f *functions.FnRun) *models.Run {
 	defer trace.Trace("runEntityToModel")()
+	tags := []*models.Tag{}
+	for k, v := range f.Tags {
+		tags = append(tags, &models.Tag{Key: k, Value: v})
+	}
 	return &models.Run{
 		ExecutedTime: f.CreatedTime.Unix(),
 		FinishedTime: f.FinishedTime.Unix(),
@@ -170,6 +177,7 @@ func runEntityToModel(f *functions.FnRun) *models.Run {
 		FunctionID:   f.FunctionID,
 		Status:       models.Status(f.Status),
 		Reason:       f.Reason,
+		Tags:         tags,
 	}
 }
 

@@ -11,15 +11,12 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/pkg/errors"
 
 	log "github.com/sirupsen/logrus"
 
-	apiv1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -184,29 +181,4 @@ func (h *Handlers) deleteSecret(params secret.DeleteSecretParams, principal inte
 		})
 	}
 	return secret.NewDeleteSecretNoContent()
-}
-
-func transformVmwToK8s(secret models.Secret) *apiv1.Secret {
-	data := make(map[string][]byte)
-	for k, v := range secret.Secrets {
-		data[k] = []byte(v)
-	}
-	return &apiv1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: *secret.Name,
-		},
-		Data: data,
-	}
-}
-
-func transformK8sToVmw(secret apiv1.Secret) *models.Secret {
-	secretValue := models.SecretValue{}
-	for k, v := range secret.Data {
-		secretValue[k] = string(v)
-	}
-	return &models.Secret{
-		ID:      strfmt.UUID(secret.UID),
-		Name:    &secret.Name,
-		Secrets: secretValue,
-	}
 }
