@@ -193,14 +193,6 @@ func (h *Handlers) getAPIs(params endpoint.GetApisParams, principal interface{})
 	defer trace.Trace("")()
 	var apis []*API
 
-	var filterNotDeleted = []entitystore.FilterStat{
-		entitystore.FilterStat{
-			Scope:   entitystore.FilterScopeField,
-			Subject: "Delete",
-			Verb:    entitystore.FilterVerbEqual,
-			Object:  false,
-		},
-	}
 	err := h.Store.List(APIManagerFlags.OrgID, entitystore.FilterExists(), &apis)
 	if err != nil {
 		log.Errorf("store error when listing apis: %+v", err)
