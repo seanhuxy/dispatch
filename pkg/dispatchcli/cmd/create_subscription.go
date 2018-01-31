@@ -41,6 +41,7 @@ func NewCmdCreateSubscription(out io.Writer, errOut io.Writer) *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVarP(&cmdFlagApplication, "application", "a", "", "associate with an application")
 	cmd.Flags().StringArrayVar(&createSubscriptionSecrets, "secret", []string{}, "Function secrets, can be specified multiple times or a comma-delimited string")
 	return cmd
 }

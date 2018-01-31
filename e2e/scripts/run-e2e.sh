@@ -37,7 +37,7 @@ function run_bats() {
     # BATS returns non-zero to indicate the tests have failed, we shouldn't
     # necessarily bail in this case, so that's the reason for the e toggle.
     set +e
-    bats "e2e/tests/clean.bats"
+    # bats "e2e/tests/clean.bats"
 
     for bats_file in $(find "$1" -name \*.bats | grep -v clean); do
         echo "=> $bats_file"

@@ -53,7 +53,7 @@ func NewCmdCreateAPI(out io.Writer, errOut io.Writer) *cobra.Command {
 		},
 	}
 
-	// cmd.Flags().StringVarP(&application, "application", "a", "", "Application")
+	cmd.Flags().StringVarP(&cmdFlagApplication, "application", "a", "", "associate with an application")
 	cmd.Flags().StringArrayVarP(&hosts, "domain", "d", []string{}, "domain names that point to your API (multi-values), default: empty")
 	cmd.Flags().StringArrayVarP(&paths, "path", "p", []string{"/"}, "paths that point to your API (multi-values), default: /")
 	cmd.Flags().StringArrayVarP(&methods, "method", "m", []string{"GET"}, "methods that point to your API, default: GET")

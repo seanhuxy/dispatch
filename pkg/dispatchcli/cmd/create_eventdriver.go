@@ -48,6 +48,7 @@ func NewCmdCreateEventDriver(out io.Writer, errOut io.Writer) *cobra.Command {
 			CheckErr(err)
 		},
 	}
+	cmd.Flags().StringVarP(&cmdFlagApplication, "application", "a", "", "associate with an application")
 	cmd.Flags().StringArrayVarP(&createEventDriverConfig, "set", "s", []string{}, "set event driver configurations, default: empty")
 	cmd.Flags().StringArrayVar(&createEventDriverSecrets, "secret", []string{}, "Configuration passed via secrets, can be specified multiple times or a comma-delimited string")
 	return cmd

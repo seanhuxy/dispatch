@@ -42,6 +42,7 @@ func NewCmdCreateFunction(out io.Writer, errOut io.Writer) *cobra.Command {
 			CheckErr(err)
 		},
 	}
+	cmd.Flags().StringVarP(&cmdFlagApplication, "application", "a", "", "associate with an application")
 	cmd.Flags().StringVar(&schemaInFile, "schema-in", "", "path to file with input validation schema")
 	cmd.Flags().StringVar(&schemaOutFile, "schema-out", "", "path to file with output validation schema")
 	cmd.Flags().StringArrayVar(&fnSecrets, "secret", []string{}, "Function secrets, can be specified multiple times or a comma-delimited string")

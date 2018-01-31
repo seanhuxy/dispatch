@@ -53,6 +53,9 @@ func getEventDrivers(out, errOut io.Writer, cmd *cobra.Command) error {
 	params := &client.GetDriversParams{
 		Context: context.Background(),
 	}
+	if cmdFlagApplication != "" {
+		params.Tags = append(params.Tags, fmt.Sprintf("Application=%s", cmdFlagApplication))
+	}
 	get, err := eventManagerClient().Drivers.GetDrivers(params, GetAuthInfoWriter())
 	if err != nil {
 		return formatAPIError(err, params)
@@ -66,6 +69,9 @@ func getEventDriver(out, errOut io.Writer, cmd *cobra.Command, args []string) er
 	params := &client.GetDriverParams{
 		DriverName: driverName,
 		Context:    context.Background(),
+	}
+	if cmdFlagApplication != "" {
+		params.Tags = append(params.Tags, fmt.Sprintf("Application=%s", cmdFlagApplication))
 	}
 	get, err := eventManagerClient().Drivers.GetDriver(params, GetAuthInfoWriter())
 	if err != nil {

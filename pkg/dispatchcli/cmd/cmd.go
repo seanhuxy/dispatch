@@ -39,7 +39,11 @@ var validResources = i18n.T(`Valid resource types include:
 	* subscriptions
     `)
 
-var dispatchConfigPath = ""
+var (
+	dispatchConfigPath = ""
+
+	cmdFlagApplication = i18n.T(``)
+)
 
 func initConfig() {
 	// Don't forget to read config either from dispatchConfigPath or from home directory!
@@ -86,6 +90,8 @@ func NewCLI(in io.Reader, out, errOut io.Writer) *cobra.Command {
 	viper.BindPFlag("skipauth", cmds.PersistentFlags().Lookup("skipauth"))
 	viper.BindPFlag("insecure", cmds.PersistentFlags().Lookup("insecure"))
 	viper.BindPFlag("json", cmds.PersistentFlags().Lookup("json"))
+
+	cmds.PersistentFlags().StringVarP(&cmdFlagApplication, "application", "a", "", "associate with an application")
 
 	cmds.AddCommand(NewCmdGet(out, errOut))
 	cmds.AddCommand(NewCmdCreate(out, errOut))

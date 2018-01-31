@@ -65,7 +65,7 @@ paths:
       - in: query
         type: array
         name: tags
-        description: Filter on function tags
+        description: Filter based on tags
         items:
           type: string
         collectionFormat: 'multi'
@@ -85,6 +85,14 @@ paths:
           schema:
             $ref: '#/definitions/Error'
   /runs:
+    parameters:
+    - in: query
+      type: array
+      name: tags
+      description: Filter based on tags
+      items:
+        type: string
+      collectionFormat: 'multi'
     get:
       tags:
       - Runner
@@ -109,6 +117,13 @@ paths:
             $ref: '#/definitions/Error'
   /{functionName}:
     parameters:
+    - in: query
+      type: array
+      name: tags
+      description: Filter based on tags
+      items:
+        type: string
+      collectionFormat: 'multi'
     - in: path
       name: functionName
       description: Name of function to work on
@@ -197,9 +212,15 @@ paths:
           description: Internal error
           schema:
             $ref: '#/definitions/Error'
-
   /{functionName}/runs:
     parameters:
+    - in: query
+      type: array
+      name: tags
+      description: Filter based on tags
+      items:
+        type: string
+      collectionFormat: 'multi'
     - in: path
       name: functionName
       description: Name of function to run
@@ -286,6 +307,13 @@ paths:
       required: true
       type: string
       format: uuid
+    - in: query
+      type: array
+      name: tags
+      description: Filter based on tags
+      items:
+        type: string
+      collectionFormat: 'multi'
     get:
       tags:
       - Runner

@@ -88,6 +88,13 @@ paths:
       required: true
       type: string
       pattern: '^[\w\d\-]+$'
+    - in: query
+      type: array
+      name: tags
+      description: Filter based on tags
+      items:
+        type: string
+      collectionFormat: 'multi'
     get:
       tags:
       - baseImage

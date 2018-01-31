@@ -57,7 +57,7 @@ func init() {
               "type": "string"
             },
             "collectionFormat": "multi",
-            "description": "Filter on function tags",
+            "description": "Filter based on tags",
             "name": "tags",
             "in": "query"
           }
@@ -164,7 +164,19 @@ func init() {
             }
           }
         }
-      }
+      },
+      "parameters": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "collectionFormat": "multi",
+          "description": "Filter based on tags",
+          "name": "tags",
+          "in": "query"
+        }
+      ]
     },
     "/{functionName}": {
       "get": {
@@ -292,6 +304,16 @@ func init() {
       },
       "parameters": [
         {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "collectionFormat": "multi",
+          "description": "Filter based on tags",
+          "name": "tags",
+          "in": "query"
+        },
+        {
           "pattern": "^[\\w\\d\\-]+$",
           "type": "string",
           "description": "Name of function to work on",
@@ -400,6 +422,16 @@ func init() {
       },
       "parameters": [
         {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "collectionFormat": "multi",
+          "description": "Filter based on tags",
+          "name": "tags",
+          "in": "query"
+        },
+        {
           "pattern": "^[\\w\\d\\-]+$",
           "type": "string",
           "description": "Name of function to run",
@@ -456,6 +488,16 @@ func init() {
           "name": "runName",
           "in": "path",
           "required": true
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "collectionFormat": "multi",
+          "description": "Filter based on tags",
+          "name": "tags",
+          "in": "query"
         }
       ]
     }

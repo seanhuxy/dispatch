@@ -62,6 +62,9 @@ func getAPIs(out, errOut io.Writer, cmd *cobra.Command) error {
 	if functionName != "" {
 		params.Function = swag.String(functionName)
 	}
+	if cmdFlagApplication != "" {
+		params.Tags = append(params.Tags, fmt.Sprintf("Application=%s", cmdFlagApplication))
+	}
 
 	client := apiManagerClient()
 	get, err := client.Endpoint.GetApis(params, GetAuthInfoWriter())
